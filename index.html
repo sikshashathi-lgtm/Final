@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ne">
+<html lang="ne" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,15 +9,30 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
+            darkMode: 'class',
             theme: {
                 extend: {
                     fontFamily: { sans: ['"Mukta"', '"Plus Jakarta Sans"', 'sans-serif'] },
                     colors: {
-                        govNavy: '#1B365D',       // गहिरो नेपाल सरकार शैली निलो
-                        govRed: '#C8102E',        // झण्डाको रातो/क्रिम्सन रङ
+                        govNavy: '#1B365D',       
+                        govRed: '#C8102E',        
                         govRedHover: '#9E0B24',
-                        govGold: '#D4AF37',       // सुनौलो बोर्डर/हाइलाइट
+                        govGold: '#D4AF37',       
                         govLightBg: '#F4F6F9'
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.3s ease-out forwards',
+                        'slide-up': 'slideUp 0.4s ease-out forwards'
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' }
+                        },
+                        slideUp: {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' }
+                        }
                     }
                 }
             }
@@ -28,245 +43,132 @@
             background: linear-gradient(135deg, #1B365D 0%, #0F2342 100%);
         }
         .avatar-circle {
-            width: 44px;
-            height: 44px;
+            width: 48px;
+            height: 48px;
             border-radius: 50%;
             background: linear-gradient(135deg, #1B365D, #C8102E);
             color: white;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.2rem;
+            font-size: 1.25rem;
             font-weight: 700;
             border: 2px solid #D4AF37;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
-        @media print {
-            body * { visibility: hidden; }
-            #printableMarksheet, #printableMarksheet * { visibility: visible; }
-            #printableMarksheet { position: absolute; left: 0; top: 0; width: 100%; }
-        }
+        
+        /* Full Screen Switching Styles */
+        .view-section { display: none !important; }
+        .view-section.active { display: block !important; animation: fadeIn 0.3s ease-out; }
+        .view-section.active.fullscreen-view { display: flex !important; flex-direction: column; }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #1B365D; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #C8102E; }
     </style>
 </head>
-<body class="bg-govLightBg text-slate-800 font-sans antialiased border-t-4 border-govRed">
+<body class="bg-govLightBg dark:bg-slate-900 text-slate-800 dark:text-slate-100 font-sans antialiased border-t-4 border-govRed transition-colors duration-300">
 
     <!-- Welcome / Contact Popup Modal -->
-    <div id="welcomeContactModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 text-center relative border-t-4 border-govRed transform transition-all">
-            <button onclick="closeModal('welcomeContactModal')" class="absolute top-3 right-3 text-slate-400 hover:text-slate-700 text-2xl font-bold">&times;</button>
-            <div class="w-16 h-16 bg-red-100 text-govRed rounded-full flex items-center justify-center mx-auto mb-3 text-2xl font-bold border border-govRed">
+    <div id="welcomeContactModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 transition-opacity hidden">
+        <div class="bg-white dark:bg-slate-800 rounded-xl shadow-2xl max-w-md w-full p-6 text-center relative border-t-4 border-govRed animate-slide-up">
+            <button onclick="closeModal('welcomeContactModal')" class="absolute top-3 right-3 text-slate-400 hover:text-govRed text-3xl font-bold transition-colors">&times;</button>
+            <div class="w-16 h-16 bg-red-50 dark:bg-slate-700 text-govRed rounded-full flex items-center justify-center mx-auto mb-3 text-2xl font-bold border-2 border-govRed shadow-inner">
                 📞
             </div>
-            <h3 class="text-xl font-extrabold text-govNavy mb-1" id="pop-title">सम्पर्क फारम / Direct Contact</h3>
-            <p class="text-xs text-slate-600 mb-4" id="pop-desc">पोखराभरि होम ट्युसन तथा शिक्षक आवश्यकताका लागि सिधै सम्पर्क गर्नुहोस्।</p>
+            <h3 class="text-xl font-extrabold text-govNavy dark:text-blue-300 mb-1" id="pop-title">सम्पर्क फारम / Direct Contact</h3>
+            <p class="text-xs text-slate-600 dark:text-slate-300 mb-4" id="pop-desc">पोखराभरि होम ट्युसन तथा शिक्षक आवश्यकताका लागि सिधै सम्पर्क गर्नुहोस्।</p>
             
-            <div class="bg-slate-50 p-3 rounded-lg border border-slate-200 mb-4 space-y-2 text-sm font-bold text-slate-800">
-                <p class="flex items-center justify-center gap-2 text-govNavy text-base">
+            <div class="bg-slate-50 dark:bg-slate-700/50 p-3 rounded-lg border border-slate-200 dark:border-slate-600 mb-4 space-y-2 text-sm font-bold text-slate-800 dark:text-slate-200 hover:shadow-md transition-shadow">
+                <p class="flex items-center justify-center gap-2 text-govNavy dark:text-amber-400 text-base">
                     <span>📱 सम्पर्क फोन:</span>
-                    <a href="tel:9768006667" class="text-govRed underline">९७६८००६६६७</a>
+                    <a href="tel:9768006667" class="text-govRed dark:text-red-400 hover:underline transition-colors">९७६८००६६६७</a>
                 </p>
-                <p class="flex items-center justify-center gap-2 text-xs text-slate-600 font-normal">
+                <p class="flex items-center justify-center gap-2 text-xs text-slate-600 dark:text-slate-300 font-normal">
                     <span>✉️ इमेल:</span>
-                    <a href="mailto:Sikshashathi@gmail.com" class="text-blue-700 underline font-semibold">Sikshashathi@gmail.com</a>
+                    <a href="mailto:tuitionhomepokhara@gmail.com" class="text-blue-700 dark:text-blue-400 hover:underline font-semibold transition-colors">tuitionhomepokhara@gmail.com</a>
                 </p>
             </div>
 
             <div class="grid grid-cols-2 gap-3">
-                <a href="tel:9768006667" class="bg-govNavy hover:bg-slate-900 text-white font-bold py-2.5 rounded-lg text-xs transition flex items-center justify-center gap-1 shadow">
+                <a href="tel:9768006667" class="bg-govNavy hover:bg-slate-900 text-white font-bold py-2.5 rounded-lg text-xs transition-all flex items-center justify-center gap-1 shadow-md">
                     📞 कल गर्नुहोस्
                 </a>
-                <a href="https://wa.me/9779768006667" target="_blank" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-lg text-xs transition flex items-center justify-center gap-1 shadow">
+                <a href="https://wa.me/9779768006667" target="_blank" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-lg text-xs transition-all flex items-center justify-center gap-1 shadow-md">
                     💬 WhatsApp मेसेज
                 </a>
             </div>
         </div>
     </div>
 
-    <!-- MODAL: RESULT PORTAL (नतिजा पोर्टल पपअप) -->
-    <div id="resultModal" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 sm:p-5">
-        <div class="bg-white rounded-xl shadow-2xl max-w-xl w-full max-h-[90vh] overflow-y-auto p-6 relative border-t-8 border-govNavy text-slate-800">
-            <button onclick="closeModal('resultModal')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700 text-2xl font-bold">&times;</button>
-            
-            <div class="text-center border-b pb-4 mb-4">
-                <div class="inline-block p-2 rounded-full bg-blue-50 border border-govNavy mb-2">
-                    🎓
-                </div>
-                <h2 class="text-2xl font-extrabold text-govNavy" id="result-modal-title">नतिजा खोजी पोर्टल (Result Portal)</h2>
-                <p class="text-xs font-bold text-govRed">परीक्षा नतिजा तथा लब्धाङ्क पत्र (Grade Sheet / Marksheet)</p>
-            </div>
-
-            <!-- Search Form -->
-            <form onsubmit="handleResultSearch(event)" class="space-y-4 bg-slate-50 p-4 rounded-lg border border-slate-200">
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-xs font-bold text-govNavy mb-1"> छनोट गर्नुहोस् 
-
-                        </label>
-                        <select id="resultClass" class="w-full p-2.5 bg-white border border-slate-300 rounded text-xs font-semibold focus:ring-2 focus:ring-govNavy outline-none">
-                            <option value="10"> TEACHER SELECTION )</option>
-                            <option value="12"> STUDENT RESULT</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-govNavy mb-1">सिम्बोल नम्बर (Symbol No.) *</label>
-                        <input type="text" id="resultSymbol" required placeholder="उदा: 10203040A वा 00124" class="w-full p-2.5 bg-white border border-slate-300 rounded text-xs font-bold focus:ring-2 focus:ring-govNavy outline-none">
-                    </div>
-                </div>
-                <button type="submit" class="w-full bg-govNavy hover:bg-slate-900 text-white font-bold py-2.5 rounded text-xs transition border-b-2 border-govGold flex items-center justify-center gap-2">
-                    🔍 नतिजा खोज्नुहोस् (Search Result)
-                </button>
-            </form>
-
-            <!-- Result Output Box (Dynamically Rendered) -->
-            <div id="resultCardArea" class="mt-5 hidden">
-                <div id="printableMarksheet" class="bg-amber-50/40 p-5 rounded-lg border-2 border-govNavy relative">
-                    <!-- Marksheet Header -->
-                    <div class="text-center border-b-2 border-govNavy pb-3 mb-3">
-                        <h3 class="text-base font-extrabold text-govNavy uppercase">SHIKSHYA SATHI TUITION PORTAL</h3>
-                        <p class="text-[11px] font-bold text-govRed">Academic Performance & Evaluation Sheet</p>
-                        <p class="text-[10px] text-slate-500 font-semibold">Pokhara, Gandaki Province, Nepal</p>
-                    </div>
-
-                    <!-- Student Info -->
-                    <div class="grid grid-cols-2 gap-2 text-xs mb-3 bg-white p-3 rounded border border-slate-200">
-                        <p><strong>विद्यार्थीको नाम:</strong> <span id="resName" class="font-extrabold text-govNavy">---</span></p>
-                        <p><strong>सिम्बोल नं:</strong> <span id="resSymbol" class="font-extrabold text-govRed">---</span></p>
-                        <p><strong>कक्षा:</strong> <span id="resClass">---</span></p>
-                        <p><strong>नतिजा स्थिति:</strong> <span id="resStatus" class="font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded">PASSED</span></p>
-                    </div>
-
-                    <!-- Marks Table -->
-                    <table class="w-full text-xs text-left border-collapse border border-slate-300 bg-white mb-3">
-                        <thead>
-                            <tr class="bg-govNavy text-white font-bold text-[11px]">
-                                <th class="border border-slate-300 p-1.5">विषय (Subject)</th>
-                                <th class="border border-slate-300 p-1.5 text-center">Credit Hour</th>
-                                <th class="border border-slate-300 p-1.5 text-center">Grade</th>
-                                <th class="border border-slate-300 p-1.5 text-center">Grade Point</th>
-                            </tr>
-                        </thead>
-                        <tbody id="resultTableBody">
-                            <!-- Dynamic Content -->
-                        </tbody>
-                    </table>
-
-                    <!-- GPA Output -->
-                    <div class="flex justify-between items-center bg-blue-900 text-white p-2.5 rounded font-bold text-xs">
-                        <span>कुल ग्रेड पोइन्ट (GPA):</span>
-                        <span id="resGPA" class="text-amber-400 text-sm font-extrabold">3.65 (A+)</span>
-                    </div>
-                </div>
-
-                <!-- Action Buttons -->
-                <div class="mt-4 flex gap-2 justify-end">
-                    <button onclick="window.print()" class="bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold py-2 px-4 rounded transition flex items-center gap-1 shadow">
-                        🖨️ Marksheet प्रिन्ट गर्नुहोस्
-                    </button>
-                    <button onclick="document.getElementById('resultCardArea').classList.add('hidden')" class="bg-slate-600 hover:bg-slate-700 text-white text-xs font-bold py-2 px-4 rounded transition">
-                        पुनः खोज्नुहोस्
-                    </button>
-                </div>
-            </div>
-
-            <!-- Loader / Error Message -->
-            <div id="resultMessage" class="mt-4 text-center text-xs font-bold hidden"></div>
-        </div>
-    </div>
-
-    <!-- MODAL: ABOUT US (हाम्रो बारेमा विस्तृत विवरण पपअप) -->
+    <!-- ABOUT US MODAL -->
     <div id="aboutUsModal" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 sm:p-5">
-        <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 relative border-t-8 border-govNavy text-slate-700">
-            <button onclick="closeModal('aboutUsModal')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700 text-2xl font-bold">&times;</button>
+        <div class="bg-white dark:bg-slate-800 rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 relative border-t-8 border-govNavy dark:border-govGold text-slate-700 dark:text-slate-200 animate-slide-up">
+            <button onclick="closeModal('aboutUsModal')" class="absolute top-4 right-4 text-slate-400 hover:text-govRed text-3xl font-bold transition-colors">&times;</button>
             
-            <div class="text-center border-b pb-4 mb-4">
-                <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiL7dDqEm-oYV5DXpfPm4YM9kpU1IB3uRoxQn6itok7vJskTq8Uts_flkvKk-QRxXK1R7k8fJ3s5pRHCmLbSnlA2uiocm_uwmGOmlPwI90_NOIWnclF8_JW-r3AWE2u36-ExBJSK6L82fZoB_75xwgzzTKwhX4Zza7T_M20GkGI38Y4vLc6Yi1EDMu6FDso/s1254/1000275071.png" alt="Shikshya Sathi Logo" class="h-14 mx-auto mb-2 object-contain">
-                <h2 class="text-2xl font-extrabold text-govNavy" id="about-modal-title">हाम्रो बारेमा (About Shikshya Sathi)</h2>
-                <p class="text-xs font-bold text-govRed">साथ हाम्रो, सफलता तपाईंको — गुणस्तरीय शिक्षाको प्रतिबद्धता</p>
+            <div class="text-center border-b dark:border-slate-700 pb-4 mb-4">
+                <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiL7dDqEm-oYV5DXpfPm4YM9kpU1IB3uRoxQn6itok7vJskTq8Uts_flkvKk-QRxXK1R7k8fJ3s5pRHCmLbSnlA2uiocm_uwmGOmlPwI90_NOIWnclF8_JW-r3AWE2u36-ExBJSK6L82fZoB_75xwgzzTKwhX4Zza7T_M20GkGI38Y4vLc6Yi1EDMu6FDso/s1254/1000275071.png" alt="Shikshya Sathi Logo" class="h-14 mx-auto mb-2 object-contain hover:scale-105 transition-transform bg-white rounded p-1">
+                <h2 class="text-2xl font-extrabold text-govNavy dark:text-blue-300" id="about-modal-title">हाम्रो बारेमा (About Shikshya Sathi)</h2>
+                <p class="text-xs font-bold text-govRed dark:text-red-400">साथ हाम्रो, सफलता तपाईंको — गुणस्तरीय शिक्षाको प्रतिबद्धता</p>
             </div>
 
             <div class="space-y-4 text-xs sm:text-sm leading-relaxed" id="about-modal-content">
-                <div class="bg-blue-50 p-4 rounded-lg border-l-4 border-govNavy">
-                    <h3 class="font-extrabold text-govNavy text-base mb-1">🎓 शिक्षा साथी के हो?</h3>
-                    <p>
-                        <strong>शिक्षा साथी (Shikshya Sathi)</strong> पोखरा क्षेत्रमा निजी तथा व्यक्तिगत रूपमा सञ्चालित एक भरपर्दो र अग्रणी <strong>होम ट्युसन सहजीकरण डिजिटल प्लेटफर्म</strong> हो। हाम्रा मुख्य उद्देश्य विद्यार्थीहरूलाई उनीहरूकै घरमै उत्कृष्ट, दक्ष र योग्य शिक्षकहरूसँग जोडेर शैक्षिक स्तर अभिवृद्धि गर्नु हो।
-                    </p>
+                <div class="bg-blue-50 dark:bg-slate-700/60 p-4 rounded-lg border-l-4 border-govNavy dark:border-amber-400 hover:shadow-md transition-shadow">
+                    <h3 class="font-extrabold text-govNavy dark:text-blue-300 text-base mb-1">🎓 शिक्षा साथी के हो?</h3>
+                    <p><strong>शिक्षा साथी (Shikshya Sathi)</strong> पोखरा क्षेत्रमा निजी तथा व्यक्तिगत रूपमा सञ्चालित एक भरपर्दो र अग्रणी <strong>होम ट्युसन सहजीकरण डिजिटल प्लेटफर्म</strong> हो। हाम्रा मुख्य उद्देश्य विद्यार्थीहरूलाई उनीहरूकै घरमै उत्कृष्ट, दक्ष र योग्य शिक्षकहरूसँग जोडेर शैक्षिक स्तर अभिवृद्धि गर्नु हो।</p>
                 </div>
-
-                <div>
-                    <h3 class="font-bold text-govNavy text-sm mb-1 uppercase tracking-wide">🎯 हाम्रो मुख्य उद्देश्य (Our Mission)</h3>
-                    <p>
-                        आजको प्रतिस्पर्धात्मक युगमा प्रत्येक विद्यार्थीको सिक्ने क्षमता फरक हुन्छ। ठूला कक्षाका बीचमा धेरै विद्यार्थीहरूले व्यक्तिगत ध्यान पाउँदैनन्। त्यसैले, कक्षा १ देखि १२ सम्म (SEE र +२ समेत) का विद्यार्थीहरूलाई उनीहरूको आवश्यकता अनुसार विषयगत दक्ष शिक्षक उपलब्ध गराई सफलताको मार्गमा डोऱ्याउनु नै हाम्रो मूख्य उद्देश्य हो।
-                    </p>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <div class="bg-slate-50 p-3 rounded border border-slate-200">
-                        <h4 class="font-bold text-govRed text-xs mb-1">✅ योग्य र प्रमाणित शिक्षकहरू</h4>
-                        <p class="text-xs text-slate-600">
-                            हामीसँग आबद्ध शिक्षकहरू उच्च शैक्षिक योग्यता (+२ पास, ब्याचलर र मास्टर्स अध्ययनरत वा पास) तथा अध्यापन अनुभव भएका हुनुहुन्छ।
-                        </p>
-                    </div>
-                    <div class="bg-slate-50 p-3 rounded border border-slate-200">
-                        <h4 class="font-bold text-govRed text-xs mb-1">📍 पोखराभरि होम सेवा</h4>
-                        <p class="text-xs text-slate-600">
-                            बिरौटा, न्युरोड, लेकसाइड, अमरसिंह, बगर लगायत पोखराका मुख्य तथा आसपासका सबै क्षेत्रहरूमा ट्युसन सुविधा उपलब्ध छ।
-                        </p>
-                    </div>
-                </div>
-
-                <div>
-                    <h3 class="font-bold text-govNavy text-sm mb-1 uppercase tracking-wide">🛠️ हामी कसरी काम गर्छौँ?</h3>
-                    <ol class="list-decimal pl-5 space-y-1 font-semibold text-slate-700 text-xs">
-                        <li><strong>अभिभावकको माग:</strong> अभिभावक वा विद्यार्थीले आफ्नो विषय, कक्षा र स्थान अनुसार ट्युटर माग फारम भर्नुहुन्छ।</li>
-                        <li><strong>ट्युटर छनोट:</strong> माग बमोजिम उपयुक्त, अनुभवी र नजिकै रहने शिक्षक चयन गरिन्छ।</li>
-                        <li><strong>प्रत्यक्ष भेट र ट्युसन सुरुवात:</strong> विद्यार्थी र शिक्षकबीच सहजीकरण गराई घरमै नियमित पढाइ सुरु गराइन्छ।</li>
-                    </ol>
-                </div>
-
-                <div class="bg-amber-50 p-3 rounded border border-amber-300 text-center space-y-1">
-                    <p class="font-bold text-govNavy text-xs">📞 थप जानकारी वा सोधपुछका लागि</p>
-                    <p class="text-sm font-extrabold text-govRed">मोबाइल: ९७६८००६६६७ | इमेल: Sikshashathi@gmail.com</p>
+                <div class="bg-amber-50 dark:bg-slate-700 p-3 rounded border border-amber-300 dark:border-amber-600 text-center space-y-1">
+                    <p class="font-bold text-govNavy dark:text-amber-300 text-xs">📞 थप जानकारी वा सोधपुछका लागि</p>
+                    <p class="text-sm font-extrabold text-govRed dark:text-red-400">मोबाइल: ९७६८००६६६७ | इमेल: tuitionhomepokhara@gmail.com</p>
                 </div>
             </div>
-
             <div class="mt-5 text-center">
-                <button onclick="closeModal('aboutUsModal')" class="bg-govNavy hover:bg-slate-900 text-white font-bold py-2 px-6 rounded text-xs transition border-b-2 border-govGold">
+                <button onclick="closeModal('aboutUsModal')" class="bg-govNavy hover:bg-slate-900 text-white font-bold py-2.5 px-8 rounded-lg text-xs transition-all border-b-2 border-govGold shadow-md">
                     बन्द गर्नुहोस् (Close)
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- Top Info Bar (Gov Style Layout) -->
-    <div class="bg-govNavy text-slate-200 text-xs py-2 px-6 border-b-2 border-govGold">
-        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-2">
-            <div class="flex items-center space-x-6">
+    <!-- Top Info Bar (UPDATED WITH DATE & DARK/LIGHT MODE TOGGLE) -->
+    <div class="bg-govNavy text-slate-200 text-xs py-2 px-4 sm:px-6 border-b-2 border-govGold shadow-sm relative z-40">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-2">
+            <div class="flex flex-wrap items-center justify-center md:justify-start gap-4">
                 <span class="flex items-center gap-1.5"><span class="text-govGold font-bold">📍</span> <span id="top-loc">गण्डकी प्रदेश, पोखरा, नेपाल</span></span>
                 <span class="flex items-center gap-1.5"><span class="text-govGold font-bold">📞</span> ९७६८००६६६७</span>
-                <span class="flex items-center gap-1.5"><span class="text-govGold font-bold">✉️</span> Sikshashathi@gmail.com</span>
+                <span class="flex items-center gap-1.5"><span class="text-govGold font-bold">✉️</span> tuitionhomepokhara@gmail.com</span>
             </div>
-            <div class="flex items-center space-x-4">
+            <div class="flex items-center gap-3">
+                <!-- English & Nepali Dynamic Date Display -->
+                <div class="bg-blue-950/80 px-2.5 py-1 rounded border border-slate-600 text-[11px] text-amber-300 font-mono font-bold flex items-center gap-1">
+                    <span>📅</span> <span id="live-date-display">Loading Date...</span>
+                </div>
+                <!-- Dark / Light Mode Toggle Button -->
+                <button onclick="toggleDarkMode()" id="theme-toggle" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-amber-300 text-xs font-bold border border-amber-400/50 transition-all flex items-center gap-1" title="Toggle Theme">
+                    <span id="theme-icon">🌙</span> <span id="theme-text">Dark</span>
+                </button>
                 <div class="space-x-1">
-                    <button id="btn-np" onclick="switchLanguage('np')" class="px-2.5 py-0.5 rounded bg-govRed text-white font-semibold transition border border-amber-300">नेपाली</button>
-                    <button id="btn-en" onclick="switchLanguage('en')" class="px-2.5 py-0.5 rounded hover:bg-blue-900 text-slate-300 transition">English</button>
+                    <button id="btn-np" onclick="switchLanguage('np')" class="px-2.5 py-1 rounded-md bg-govRed text-white font-semibold transition-all border border-amber-300 text-[11px]">नेपाली</button>
+                    <button id="btn-en" onclick="switchLanguage('en')" class="px-2.5 py-1 rounded-md hover:bg-blue-900 text-slate-300 transition-all text-[11px]">English</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Header (Government Layout Inspired Header) -->
-    <header class="bg-white sticky top-0 z-40 shadow-md border-b border-slate-300">
+    <!-- Header -->
+    <header class="bg-white/95 dark:bg-slate-900/95 backdrop-blur-md sticky top-0 z-40 shadow-sm border-b border-slate-200 dark:border-slate-800 transition-all">
         <div class="max-w-7xl mx-auto px-6 py-3 flex justify-between items-center">
-            <a href="javascript:void(0)" class="flex items-center space-x-4">
-                <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiL7dDqEm-oYV5DXpfPm4YM9kpU1IB3uRoxQn6itok7vJskTq8Uts_flkvKk-QRxXK1R7k8fJ3s5pRHCmLbSnlA2uiocm_uwmGOmlPwI90_NOIWnclF8_JW-r3AWE2u36-ExBJSK6L82fZoB_75xwgzzTKwhX4Zza7T_M20GkGI38Y4vLc6Yi1EDMu6FDso/s1254/1000275071.png" alt="Shikshya Sathi Logo" class="h-16 w-auto object-contain">
+            <a href="javascript:void(0)" onclick="switchView('home')" class="flex items-center space-x-4 group">
+                <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiL7dDqEm-oYV5DXpfPm4YM9kpU1IB3uRoxQn6itok7vJskTq8Uts_flkvKk-QRxXK1R7k8fJ3s5pRHCmLbSnlA2uiocm_uwmGOmlPwI90_NOIWnclF8_JW-r3AWE2u36-ExBJSK6L82fZoB_75xwgzzTKwhX4Zza7T_M20GkGI38Y4vLc6Yi1EDMu6FDso/s1254/1000275071.png" alt="Shikshya Sathi Logo" class="h-16 w-auto object-contain group-hover:scale-105 transition-transform bg-white rounded p-1">
                 <div class="hidden sm:block border-l-2 border-govRed pl-4">
-                    <h1 class="text-lg font-extrabold text-govNavy leading-tight" id="site-name">शिक्षा साथी (Shikshya Sathi)</h1>
-                    <span class="bg-red-50 text-govRed text-[11px] font-bold px-2.5 py-0.5 rounded border border-red-200" id="header-slogan">साथ हाम्रो, सफलता तपाईंको</span>
-                    <p class="text-xs text-slate-600 font-semibold mt-0.5" id="header-sub">निजी होम ट्युसन व्यवस्थापन प्रणाली, पोखरा</p>
+                    <h1 class="text-xl font-extrabold text-govNavy dark:text-blue-300 leading-tight group-hover:text-govRed transition-colors" id="site-name">शिक्षा साथी (Shikshya Sathi)</h1>
+                    <span class="bg-red-50 dark:bg-slate-800 text-govRed dark:text-red-400 text-[11px] font-bold px-2.5 py-0.5 rounded border border-red-200 dark:border-red-900 inline-block mt-1" id="header-slogan">साथ हाम्रो, सफलता तपाईंको</span>
                 </div>
             </a>
             <div class="flex items-center space-x-3">
-                <a href="https://sikshashathi-lgtm.github.io/Sikhsyasathi-main/" target="_blank" class="px-4 py-2 text-xs font-bold text-govNavy bg-slate-100 hover:bg-slate-200 rounded border border-govNavy transition" id="btn-tutor-reg">+ शिक्षक दर्ता</a>
-                <button onclick="openModal('parentReqModal')" class="px-4 py-2 text-xs font-bold text-white bg-govRed hover:bg-govRedHover rounded shadow transition border border-red-800" id="btn-parent-req">ट्युटर माग गर्नुहोस्</button>
+                <button onclick="switchView('tutor-reg')" class="px-4 py-2.5 text-xs font-bold text-govNavy dark:text-slate-100 bg-slate-100 dark:bg-slate-800 hover:bg-govNavy hover:text-white rounded-lg border border-govNavy dark:border-slate-600 transition-all shadow-sm" id="btn-tutor-reg">+ शिक्षक दर्ता</button>
+                <button onclick="openModal('parentReqModal')" class="px-4 py-2.5 text-xs font-bold text-white bg-govRed hover:bg-govRedHover rounded-lg shadow-md transition-all border border-red-800" id="btn-parent-req">ट्युटर माग गर्नुहोस्</button>
             </div>
         </div>
     </header>
@@ -274,207 +176,336 @@
     <!-- Navigation Bar -->
     <nav class="bg-govNavy text-white shadow-md sticky top-[80px] z-30 border-b border-govGold">
         <div class="max-w-7xl mx-auto px-6 flex justify-between items-center">
-            <ul class="flex space-x-2 text-sm font-bold py-2 overflow-x-auto whitespace-nowrap">
-                <li><a href="javascript:void(0)" class="px-4 py-1.5 rounded bg-blue-900 text-white transition border-b-2 border-govGold cursor-default" id="nav-home">गृहपृष्ठ</a></li>
-                <li><a href="#search-section" class="px-4 py-1.5 rounded hover:bg-blue-900 text-slate-200 transition" id="nav-search">ट्युटर खोजी</a></li>
-                <li><a href="    https://sikshashathi-lgtm.github.io/Vacancy/" target="_blank" class="px-4 py-1.5 rounded hover:bg-blue-900 text-slate-200 transition" id="nav-reg"> भ्याकेन्सी </a></li>
-                <li><a href="javascript:void(0)" onclick="alert('लाइब्रेरी सेक्सन चाँडै उपलब्ध हुनेछ।')" class="px-4 py-1.5 rounded hover:bg-blue-900 text-slate-200 transition" id="nav-library">लाइब्रेरी</a></li>
-                <li><a href="javascript:void(0)" onclick="openModal('aboutUsModal')" class="px-4 py-1.5 rounded hover:bg-blue-900 text-slate-200 transition" id="nav-about">हाम्रो बारेमा</a></li>
-                <li><a href="javascript:void(0)" onclick="openModal('resultModal')" class="px-4 py-1.5 rounded bg-govRed hover:bg-govRedHover text-white transition font-extrabold shadow" id="nav-result">📊 नतिजा</a></li>
+            <ul class="flex space-x-1 sm:space-x-2 text-sm font-bold py-2 overflow-x-auto whitespace-nowrap">
+                <li><a href="javascript:void(0)" onclick="switchView('home')" class="nav-item active block px-4 py-2 rounded-md bg-blue-900 text-white transition-all border-b-2 border-govGold shadow-inner" id="nav-home">गृहपृष्ठ</a></li>
+                <li><a href="javascript:void(0)" onclick="switchView('vacancy')" class="nav-item block px-4 py-2 rounded-md hover:bg-blue-800 text-slate-200 transition-all" id="nav-reg">भ्याकेन्सी</a></li>
+                <li><a href="javascript:void(0)" onclick="switchView('tutor-reg')" class="nav-item block px-4 py-2 rounded-md hover:bg-blue-800 text-slate-200 transition-all" id="nav-tutor-apply">शिक्षक आवेदन</a></li>
+                <li><a href="javascript:void(0)" onclick="alert('लाइब्रेरी सेक्सन चाँडै उपलब्ध हुनेछ।')" class="block px-4 py-2 rounded-md hover:bg-blue-800 text-slate-200 transition-all" id="nav-library">लाइब्रेरी</a></li>
+                <li><a href="javascript:void(0)" onclick="openModal('aboutUsModal')" class="block px-4 py-2 rounded-md hover:bg-blue-800 text-slate-200 transition-all" id="nav-about">हाम्रो बारेमा</a></li>
+                <li><a href="javascript:void(0)" onclick="switchView('result')" class="nav-item block px-4 py-2 rounded-md bg-govRed hover:bg-govRedHover text-white transition-all font-extrabold shadow-md border border-red-900" id="nav-result">📊 नतिजा</a></li>
             </ul>
         </div>
     </nav>
 
-    <!-- Notice Ticker (Official Red Bar) -->
-    <div class="bg-red-50 border-b border-red-200 py-2 px-6 text-xs text-red-950">
+    <!-- Notice Ticker -->
+    <div class="bg-red-50 dark:bg-slate-800 border-b border-red-200 dark:border-slate-700 py-2 px-6 text-xs text-red-950 dark:text-red-200 shadow-inner">
         <div class="max-w-7xl mx-auto flex items-center">
-            <span class="bg-govRed text-white font-bold px-2.5 py-0.5 rounded text-[10px] uppercase tracking-wider mr-3 shadow-sm" id="notice-tag">सूचना / NOTICE</span>
-            <marquee behavior="scroll" direction="left" scrollamount="4" class="font-bold text-govNavy" id="notice-text">
-                🚨 पोखराका सबै क्षेत्रका लागि अनुभवी शिक्षकहरू उपलब्ध छन्। परीक्षा नतिजा हेर्न 'नतिजा' मेनुमा क्लिक गरी सिम्बोल नम्बर प्रविष्ट गर्नुहोस्!
+            <span class="bg-govRed text-white font-bold px-3 py-1 rounded shadow-sm text-[10px] uppercase tracking-wider mr-3 whitespace-nowrap animate-pulse" id="notice-tag">सूचना / NOTICE</span>
+            <marquee behavior="scroll" direction="left" scrollamount="5" class="font-bold text-govNavy dark:text-amber-300" id="notice-text">
+                🚨 पोखराका सबै क्षेत्रका लागि अनुभवी शिक्षकहरू उपलब्ध छन्। परीक्षा नतिजा हेर्न 'नतिजा' मेनुमा क्लिक गरी सिम्बोल नम्बर प्रविष्ट गर्नुहोस्! नयाँ भ्याकेन्सीको लागि "भ्याकेन्सी" मेनुमा जानुहोस्।
             </marquee>
         </div>
     </div>
 
-    <!-- Hero Section -->
-    <section class="relative bg-slate-900 text-white py-10 px-6 border-b-4 border-govGold" style="background: linear-gradient(135deg, #1B365D 0%, #0D1B2A 100%);">
-        <div class="max-w-4xl mx-auto text-center relative z-10">
-            <span class="inline-block bg-govRed/80 text-white border border-govGold px-4 py-1 rounded text-xs font-bold mb-3 shadow">
-                🎓 पोखराको अग्रणी ट्युसन चौतारी
-            </span>
-            <h2 class="text-2xl md:text-4xl font-extrabold tracking-tight mb-3 leading-tight text-white" id="hero-title">
-                प्रमाणित शिक्षकबाट <span class="text-amber-400">गुणस्तरीय होम ट्युसन</span>
-            </h2>
-            <p class="text-slate-300 text-xs md:text-sm max-w-2xl mx-auto" id="hero-desc">
-                कक्षा १ देखि १२ (SEE, +२) सम्मका विद्यार्थीहरूका लागि पोखरा क्षेत्रका अनुभवी शिक्षकहरूसँग सिधै जोडिनुहोस्।
-            </p>
-        </div>
-    </section>
-
-    <!-- SEARCH & FILTER SECTION (Simplified Clean Box) -->
-    <section id="search-section" class="max-w-7xl mx-auto px-6 -mt-6 relative z-20">
-        <div class="bg-white p-5 rounded-xl shadow-md border-2 border-slate-300 space-y-4">
-            <div class="border-b pb-2 flex justify-between items-center">
-                <h3 class="text-sm font-extrabold text-govNavy flex items-center gap-2" id="filter-title">
-                    🔍 ट्युटर खोजी फिल्टर (Search Tutors)
-                </h3>
-            </div>
-            
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div>
-                    <label class="block text-[11px] font-bold text-govNavy mb-1">👤 नाम (Name):</label>
-                    <input type="text" id="s-name" onkeyup="filterTutors()" placeholder="उदा: Arjun Rai" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded text-xs outline-none focus:ring-2 focus:ring-govNavy font-semibold">
-                </div>
-                <div>
-                    <label class="block text-[11px] font-bold text-govNavy mb-1">📍 ठेगाना / स्थान (Location):</label>
-                    <input type="text" id="s-location" onkeyup="filterTutors()" placeholder="उदा: Birauta, Newroad, Lakeside" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded text-xs outline-none focus:ring-2 focus:ring-govNavy font-semibold">
-                </div>
-                <div>
-                    <label class="block text-[11px] font-bold text-govNavy mb-1">📚 विषय (Subject):</label>
-                    <input type="text" id="s-subject" onkeyup="filterTutors()" placeholder="उदा: Mathematics, Science" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded text-xs outline-none focus:ring-2 focus:ring-govNavy font-semibold">
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Main Content Grid -->
-    <main class="max-w-7xl mx-auto px-6 py-10 grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <!-- MAIN VIEWS CONTAINER -->
+    <main class="w-full">
         
-        <div class="lg:col-span-2 space-y-6">
-            <div class="flex justify-between items-center border-b-2 border-govNavy pb-2">
-                <h3 class="text-lg font-extrabold text-govNavy flex items-center gap-2">
-                    <span class="w-2 h-5 bg-govRed rounded-sm"></span>
-                    <span id="tutors-sec-title">उपलब्ध शिक्षक विवरणहरू (Tutor Profiles)</span>
-                </h3>
-                <span class="text-xs text-slate-600 font-bold bg-slate-200 px-2.5 py-1 rounded" id="total-count">लोड हुँदैछ...</span>
+        <!-- ================= VIEW 1: HOME (Hero + Social Links + Tutors + Partners) ================= -->
+        <div id="home-view" class="view-section active">
+            <!-- Hero Section -->
+            <section class="relative text-white py-14 px-6 border-b-4 border-govGold overflow-hidden bg-govNavy" style="background: radial-gradient(circle at top right, #1f4277, #0D1B2A);">
+                <div class="absolute top-0 right-0 w-64 h-64 bg-govRed/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3"></div>
+                <div class="absolute bottom-0 left-0 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl translate-y-1/3 -translate-x-1/3"></div>
+                
+                <div class="max-w-4xl mx-auto text-center relative z-10 animate-slide-up">
+                    <span class="inline-block bg-govRed text-white border border-govGold px-5 py-1.5 rounded-full text-xs font-bold mb-4 shadow-lg tracking-wide uppercase">
+                        🎓 पोखराको अग्रणी ट्युसन चौतारी
+                    </span>
+                    <h2 class="text-3xl md:text-5xl font-extrabold tracking-tight mb-4 leading-tight text-white drop-shadow-md" id="hero-title">
+                        प्रमाणित शिक्षकबाट <br class="hidden sm:block"/> <span class="text-transparent bg-clip-text bg-gradient-to-r from-govGold to-yellow-200">गुणस्तरीय होम ट्युसन</span>
+                    </h2>
+                    <p class="text-slate-200 text-sm md:text-base max-w-2xl mx-auto font-medium" id="hero-desc">
+                        कक्षा १ देखि १२ (SEE, +२) सम्मका विद्यार्थीहरूका लागि पोखरा क्षेत्रका अनुभवी शिक्षकहरूसँग सिधै जोडिनुहोस्।
+                    </p>
+                </div>
+            </section>
+
+            <!-- SOCIAL MEDIA & COMMUNITY LINKS SECTION (NEWLY ADDED) -->
+            <section class="max-w-7xl mx-auto px-6 mt-6">
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-md border border-slate-200 dark:border-slate-700">
+                    <h3 class="text-xs font-extrabold text-govNavy dark:text-amber-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+                        <span>🌐</span> हाम्रा सामाजिक सञ्जाल तथा नेटवर्क समूहहरू (Connect with us)
+                    </h3>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
+                        <!-- WhatsApp Tutor Group -->
+                        <a href="https://chat.whatsapp.com/FncpfIUWZSt7vcvxqdf7Em" target="_blank" class="flex items-center gap-2 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-800 hover:bg-emerald-600 hover:text-white p-2.5 rounded-xl transition-all duration-200 shadow-sm text-emerald-800 dark:text-emerald-300 font-bold text-xs group">
+                            <span class="text-xl">💬</span>
+                            <span class="truncate">WhatsApp Group</span>
+                        </a>
+                        <!-- WhatsApp Direct Phone -->
+                        <a href="https://wa.me/9779768006667" target="_blank" class="flex items-center gap-2 bg-green-50 dark:bg-green-950/40 border border-green-300 dark:border-green-800 hover:bg-green-600 hover:text-white p-2.5 rounded-xl transition-all duration-200 shadow-sm text-green-800 dark:text-green-300 font-bold text-xs group">
+                            <span class="text-xl">📱</span>
+                            <span class="truncate">९७६८००६६६७</span>
+                        </a>
+                        <!-- Facebook Profile -->
+                        <a href="https://www.facebook.com/share/1Le5KZx4MH/" target="_blank" class="flex items-center gap-2 bg-blue-50 dark:bg-blue-950/40 border border-blue-300 dark:border-blue-800 hover:bg-blue-600 hover:text-white p-2.5 rounded-xl transition-all duration-200 shadow-sm text-blue-800 dark:text-blue-300 font-bold text-xs group">
+                            <span class="text-xl">👤</span>
+                            <span class="truncate">FB Profile</span>
+                        </a>
+                        <!-- Facebook Page -->
+                        <a href="https://www.facebook.com/share/19iZua63sE/" target="_blank" class="flex items-center gap-2 bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-300 dark:border-indigo-800 hover:bg-indigo-600 hover:text-white p-2.5 rounded-xl transition-all duration-200 shadow-sm text-indigo-800 dark:text-indigo-300 font-bold text-xs group">
+                            <span class="text-xl">📄</span>
+                            <span class="truncate">FB Page</span>
+                        </a>
+                        <!-- Youtube Channel -->
+                        <a href="https://youtube.com/@shikshyasathi7?si=_d3Iaf6AsiwLFy-9" target="_blank" class="flex items-center gap-2 bg-red-50 dark:bg-red-950/40 border border-red-300 dark:border-red-800 hover:bg-red-600 hover:text-white p-2.5 rounded-xl transition-all duration-200 shadow-sm text-red-800 dark:text-red-300 font-bold text-xs group">
+                            <span class="text-xl">▶️</span>
+                            <span class="truncate">YouTube</span>
+                        </a>
+                        <!-- TikTok -->
+                        <a href="https://www.tiktok.com/@home_tuition_edunext?_r=1&_t=ZS-99v0wGSHulQ" target="_blank" class="flex items-center gap-2 bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 hover:bg-black hover:text-white p-2.5 rounded-xl transition-all duration-200 shadow-sm text-slate-800 dark:text-slate-200 font-bold text-xs group">
+                            <span class="text-xl">🎵</span>
+                            <span class="truncate">TikTok</span>
+                        </a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SEARCH & FILTER -->
+            <section id="search-section" class="max-w-7xl mx-auto px-6 mt-6 relative z-20">
+                <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 space-y-4">
+                    <div class="border-b border-slate-100 dark:border-slate-700 pb-3 flex justify-between items-center">
+                        <h3 class="text-sm font-extrabold text-govNavy dark:text-blue-300 flex items-center gap-2 uppercase tracking-wide" id="filter-title">
+                            🔍 ट्युटर खोजी फिल्टर (Search Tutors)
+                        </h3>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+                        <div class="group">
+                            <label class="block text-[11px] font-bold text-govNavy dark:text-slate-300 mb-1.5 uppercase tracking-wide">👤 नाम (Name):</label>
+                            <input type="text" id="s-name" onkeyup="filterTutors()" placeholder="उदा: Arjun Rai" class="w-full p-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-xs outline-none focus:ring-2 focus:ring-govRed dark:text-white transition-all font-semibold shadow-inner">
+                        </div>
+                        <div class="group">
+                            <label class="block text-[11px] font-bold text-govNavy dark:text-slate-300 mb-1.5 uppercase tracking-wide">📍 ठेगाना (Location):</label>
+                            <input type="text" id="s-location" onkeyup="filterTutors()" placeholder="उदा: Birauta, Lakeside" class="w-full p-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-xs outline-none focus:ring-2 focus:ring-govRed dark:text-white transition-all font-semibold shadow-inner">
+                        </div>
+                        <div class="group">
+                            <label class="block text-[11px] font-bold text-govNavy dark:text-slate-300 mb-1.5 uppercase tracking-wide">📚 विषय (Subject):</label>
+                            <input type="text" id="s-subject" onkeyup="filterTutors()" placeholder="उदा: Mathematics" class="w-full p-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-xs outline-none focus:ring-2 focus:ring-govRed dark:text-white transition-all font-semibold shadow-inner">
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Main Grid Area -->
+            <div class="max-w-7xl mx-auto px-6 py-10 grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-2 space-y-6">
+                    <div class="flex justify-between items-center border-b-2 border-slate-200 dark:border-slate-700 pb-3">
+                        <h3 class="text-xl font-extrabold text-govNavy dark:text-blue-300 flex items-center gap-3">
+                            <span class="w-2 h-6 bg-govRed rounded-full shadow-sm"></span>
+                            <span id="tutors-sec-title">उपलब्ध शिक्षक विवरणहरू</span>
+                        </h3>
+                        <span class="text-xs text-govNavy dark:text-slate-200 font-extrabold bg-blue-50 dark:bg-slate-800 px-3 py-1.5 rounded-full border border-blue-200 dark:border-slate-700 shadow-sm" id="total-count">लोड हुँदैछ...</span>
+                    </div>
+
+                    <div id="loading-status" class="text-center py-12 font-bold text-govNavy dark:text-amber-300 animate-pulse bg-slate-50 dark:bg-slate-800 rounded-xl border border-dashed border-slate-300 dark:border-slate-700">
+                        सर्भरबाट तथ्याङ्क (Data) लोड हुँदैछ, कृपया पर्खनुहोस्...
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="grid"></div>
+                </div>
+
+                <!-- Sidebar -->
+                <div class="space-y-6">
+                    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700 overflow-hidden group hover:shadow-xl transition-shadow">
+                        <div class="gov-card-header text-white p-5 border-b-4 border-govGold">
+                            <h4 class="font-extrabold text-sm flex items-center gap-2 uppercase tracking-wide" id="sidebar-contact-title">
+                                <span class="bg-white/20 p-1.5 rounded-full">📞</span> Direct सम्पर्क / परामर्श
+                            </h4>
+                        </div>
+                        <div class="p-6 text-xs text-slate-700 dark:text-slate-300 space-y-4">
+                            <p id="sidebar-contact-desc" class="text-sm font-medium leading-relaxed">अभिभावक वा विद्यार्थीहरूले होम ट्युसन आवश्यकताको लागि सोझै सम्पर्क गर्न सक्नुहुनेछ।</p>
+                            <div class="bg-red-50 dark:bg-slate-700 p-4 rounded-xl border border-red-100 dark:border-slate-600 text-center shadow-inner">
+                                <p class="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">सम्पर्क फोन नम्बर</p>
+                                <p class="text-2xl font-extrabold text-govRed dark:text-red-400 drop-shadow-sm">९७६८००६६६७</p>
+                            </div>
+                            <a href="https://wa.me/9779768006667" target="_blank" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-all shadow-md">
+                                <span class="text-lg">💬</span> WhatsApp मा मेसेज गर्नुहोस्
+                            </a>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <div id="loading-status" class="text-center py-8 font-bold text-govNavy animate-pulse">
-                सर्भरबाट तथ्याङ्क (Data) लोड हुँदैछ, कृपया पर्खनुहोस्...
-            </div>
+            <!-- EDUCATIONAL PARTNER SECTION (NEWLY ADDED) -->
+            <section class="max-w-7xl mx-auto px-6 mb-12">
+                <div class="bg-gradient-to-r from-blue-900 via-govNavy to-slate-900 text-white p-6 rounded-2xl shadow-xl border-2 border-govGold">
+                    <div class="text-center mb-4">
+                        <span class="bg-govGold text-slate-900 text-[10px] font-extrabold px-3 py-1 rounded-full uppercase tracking-wider">Official Partner</span>
+                        <h3 class="text-xl font-extrabold text-amber-300 mt-2">🤝 शैक्षिक साझेदार (Educational Partner)</h3>
+                    </div>
+                    <div class="flex flex-col sm:flex-row items-center justify-center gap-6 bg-white/10 backdrop-blur-sm p-4 rounded-xl border border-white/10">
+                        <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiQcRPrdstmwal6Z2aZfLtnubkc0zvxNESRxymGTMPAnxQbIaITzR7oXkaKp9d1Dd_pDMbucOuUpbKEHBmTLSM2p51mC75P9ZYdZf0kL9BZTAM40sFvBR1DCkd7jhSaW30G7bKBXxowzVD0hc2-pB-Xk_lTZAn2KlhiFGrzuT07x4WOm1dd8VNhp3LTpmo/s2048/1000254130.png" alt="Education Guru NP Logo" class="h-20 w-20 rounded-full border-2 border-govGold object-cover shadow-lg">
+                        <div class="text-center sm:text-left space-y-1">
+                            <h4 class="text-lg font-extrabold text-white">Education Guru NP</h4>
+                            <p class="text-xs text-slate-200">शैक्षिक जानकारी, लोकसेवा तथा अध्ययन सामग्रीका लागि हाम्रो आधिकारिक युट्युब च्यानल सब्क्राइब गर्नुहोस्।</p>
+                            <div class="pt-2">
+                                <a href="https://youtube.com/@educationguru.7?si=-C6F-3DB7rnuWaq9" target="_blank" class="inline-flex items-center gap-2 bg-govRed hover:bg-govRedHover text-white font-bold px-4 py-2 rounded-lg text-xs transition-all shadow-md">
+                                    <span>▶️</span> YouTube च्यानल हेर्नुहोस्
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-5" id="grid"></div>
         </div>
 
-        <!-- Sidebar Info -->
-        <div class="space-y-6">
-            <div class="bg-white rounded-xl shadow-md border-2 border-slate-300 overflow-hidden">
-                <div class="gov-card-header text-white p-4 border-b-2 border-govGold">
-                    <h4 class="font-extrabold text-sm flex items-center gap-2" id="sidebar-contact-title">
-                        <span>📞</span> direct सम्पर्क तथा परामर्श
-                    </h4>
+        <!-- ================= VIEW 2: VACANCY SECTION (FULL SCREEN OVERLAY) ================= -->
+        <div id="vacancy-view" class="view-section fullscreen-view fixed inset-0 z-50 bg-white dark:bg-slate-900 w-screen h-screen">
+            <!-- Fullscreen Header with Prominent Back Button -->
+            <div class="bg-govNavy text-white px-4 sm:px-8 py-3 flex items-center justify-between shadow-lg border-b-4 border-govGold flex-shrink-0">
+                <div class="flex items-center gap-3">
+                    <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiL7dDqEm-oYV5DXpfPm4YM9kpU1IB3uRoxQn6itok7vJskTq8Uts_flkvKk-QRxXK1R7k8fJ3s5pRHCmLbSnlA2uiocm_uwmGOmlPwI90_NOIWnclF8_JW-r3AWE2u36-ExBJSK6L82fZoB_75xwgzzTKwhX4Zza7T_M20GkGI38Y4vLc6Yi1EDMu6FDso/s1254/1000275071.png" alt="Logo" class="h-9 w-auto bg-white p-1 rounded">
+                    <h2 class="text-sm sm:text-lg font-extrabold text-white flex items-center gap-2">
+                        <span>📝</span> <span id="title-vacancy">शिक्षक भ्याकेन्सी (Teacher Vacancy)</span>
+                    </h2>
                 </div>
-                <div class="p-5 text-xs text-slate-700 space-y-3">
-                    <p id="sidebar-contact-desc">अभिभावक वा विद्यार्थीहरूले होम ट्युसन आवश्यकताको लागि सोझै सम्पर्क गर्न सक्नुहुनेछ।</p>
-                    <div class="bg-red-50 p-3 rounded border border-red-200 text-center">
-                        <p class="text-[11px] font-bold text-slate-600">सम्पर्क फोन नम्बर</p>
-                        <p class="text-base font-extrabold text-govRed">९७६८००६६६७</p>
-                    </div>
-                    <a href="https://wa.me/9779768006667" target="_blank" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold py-2.5 px-4 rounded flex items-center justify-center gap-2 transition shadow">
-                        💬 WhatsApp मा मेसेज गर्नुहोस्
-                    </a>
-                </div>
+                <button onclick="switchView('home')" class="bg-govRed hover:bg-govRedHover text-white font-bold py-2 px-4 rounded-lg text-xs sm:text-sm transition-all shadow-md flex items-center gap-2">
+                    <span>&larr;</span> <span>पछाडि फर्कनुहोस् (Back)</span>
+                </button>
             </div>
+            <!-- Embedded Iframe Taking 100% Remaining Screen Height -->
+            <div class="flex-grow w-full bg-slate-100 dark:bg-slate-900 overflow-hidden">
+                <iframe src="https://sikshashathi-lgtm.github.io/Vacancy/" class="w-full h-full border-none" title="Vacancy Section"></iframe>
+            </div>
+        </div>
 
-            <div class="bg-slate-50 p-4 rounded-xl border border-slate-300 text-xs text-slate-600 space-y-2">
-                <h5 class="font-bold text-govNavy text-sm border-b pb-1">ℹ️ ध्यान दिनुहोस्</h5>
-                <p>शिक्षा साथी एक निजी तथा स्वतन्त्र होम ट्युसन सहजीकरण सेवा प्रणाली हो।</p>
+        <!-- ================= VIEW 3: TUTOR REGISTRATION (FULL SCREEN OVERLAY) ================= -->
+        <div id="tutor-reg-view" class="view-section fullscreen-view fixed inset-0 z-50 bg-white dark:bg-slate-900 w-screen h-screen">
+            <!-- Fullscreen Header with Prominent Back Button -->
+            <div class="bg-govNavy text-white px-4 sm:px-8 py-3 flex items-center justify-between shadow-lg border-b-4 border-govGold flex-shrink-0">
+                <div class="flex items-center gap-3">
+                    <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiL7dDqEm-oYV5DXpfPm4YM9kpU1IB3uRoxQn6itok7vJskTq8Uts_flkvKk-QRxXK1R7k8fJ3s5pRHCmLbSnlA2uiocm_uwmGOmlPwI90_NOIWnclF8_JW-r3AWE2u36-ExBJSK6L82fZoB_75xwgzzTKwhX4Zza7T_M20GkGI38Y4vLc6Yi1EDMu6FDso/s1254/1000275071.png" alt="Logo" class="h-9 w-auto bg-white p-1 rounded">
+                    <h2 class="text-sm sm:text-lg font-extrabold text-white flex items-center gap-2">
+                        <span>👨‍🏫</span> <span id="title-reg">शिक्षक दर्ता (Tutor Registration)</span>
+                    </h2>
+                </div>
+                <button onclick="switchView('home')" class="bg-govRed hover:bg-govRedHover text-white font-bold py-2 px-4 rounded-lg text-xs sm:text-sm transition-all shadow-md flex items-center gap-2">
+                    <span>&larr;</span> <span>पछाडि फर्कनुहोस् (Back)</span>
+                </button>
+            </div>
+            <!-- Embedded Iframe Taking 100% Remaining Screen Height -->
+            <div class="flex-grow w-full bg-slate-100 dark:bg-slate-900 overflow-hidden">
+                <iframe src="https://sikshashathi-lgtm.github.io/Sikhsyasathi-main/" class="w-full h-full border-none" title="Tutor Registration Section"></iframe>
+            </div>
+        </div>
+
+        <!-- ================= VIEW 4: RESULT SECTION (FULL SCREEN OVERLAY) ================= -->
+        <div id="result-view" class="view-section fullscreen-view fixed inset-0 z-50 bg-white dark:bg-slate-900 w-screen h-screen">
+            <!-- Fullscreen Header with Prominent Back Button -->
+            <div class="bg-govNavy text-white px-4 sm:px-8 py-3 flex items-center justify-between shadow-lg border-b-4 border-govGold flex-shrink-0">
+                <div class="flex items-center gap-3">
+                    <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiL7dDqEm-oYV5DXpfPm4YM9kpU1IB3uRoxQn6itok7vJskTq8Uts_flkvKk-QRxXK1R7k8fJ3s5pRHCmLbSnlA2uiocm_uwmGOmlPwI90_NOIWnclF8_JW-r3AWE2u36-ExBJSK6L82fZoB_75xwgzzTKwhX4Zza7T_M20GkGI38Y4vLc6Yi1EDMu6FDso/s1254/1000275071.png" alt="Logo" class="h-9 w-auto bg-white p-1 rounded">
+                    <h2 class="text-sm sm:text-lg font-extrabold text-white flex items-center gap-2">
+                        <span>📊</span> <span id="title-result">नतिजा खोजी पोर्टल (Result Portal)</span>
+                    </h2>
+                </div>
+                <button onclick="switchView('home')" class="bg-govRed hover:bg-govRedHover text-white font-bold py-2 px-4 rounded-lg text-xs sm:text-sm transition-all shadow-md flex items-center gap-2">
+                    <span>&larr;</span> <span>पछाडि फर्कनुहोस् (Back)</span>
+                </button>
+            </div>
+            <!-- Embedded Iframe Taking 100% Remaining Screen Height -->
+            <div class="flex-grow w-full bg-slate-100 dark:bg-slate-900 overflow-hidden">
+                <iframe src="https://sikshashathi-lgtm.github.io/Result/" class="w-full h-full border-none" title="Result Section"></iframe>
             </div>
         </div>
 
     </main>
 
-    <!-- MODAL: Tutor Profile Viewer -->
+    <!-- Tutor Profile Viewer -->
     <div id="tutorProfileModal" class="fixed inset-0 bg-black/65 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 relative max-h-[90vh] overflow-y-auto border-t-4 border-govRed">
-            <button onclick="closeModal('tutorProfileModal')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700 text-2xl font-bold">&times;</button>
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-md w-full p-8 relative max-h-[90vh] overflow-y-auto border-t-8 border-govNavy dark:border-govGold animate-slide-up text-slate-800 dark:text-slate-200">
+            <button onclick="closeModal('tutorProfileModal')" class="absolute top-4 right-4 text-slate-400 hover:text-govRed text-3xl font-bold transition-colors">&times;</button>
             
-            <div class="text-center mb-4">
-                <div class="avatar-circle mx-auto mb-2" id="pm-avatar">T</div>
-                <h3 class="text-lg font-bold text-govNavy" id="pm-name">Tutor Name</h3>
-                <p class="text-xs font-semibold text-slate-600" id="pm-loc">📍 Location</p>
+            <div class="text-center mb-6">
+                <div class="avatar-circle mx-auto mb-3 shadow-lg scale-110" id="pm-avatar">T</div>
+                <h3 class="text-xl font-extrabold text-govNavy dark:text-blue-300" id="pm-name">Tutor Name</h3>
+                <p class="text-xs font-bold text-govRed dark:text-red-400 bg-red-50 dark:bg-slate-700 inline-block px-3 py-1 rounded-full mt-1 border border-red-100 dark:border-slate-600" id="pm-loc">📍 Location</p>
             </div>
 
-            <div class="space-y-2.5 text-xs">
-                <div class="bg-slate-50 p-2.5 rounded border border-slate-200">
-                    <label class="block font-bold text-slate-500 uppercase text-[10px]">📚 विषय (Subjects)</label>
-                    <span id="pm-sub" class="font-bold text-slate-800 text-xs">-</span>
+            <div class="space-y-3 text-sm">
+                <div class="bg-slate-50 dark:bg-slate-700/60 p-3.5 rounded-xl border border-slate-200 dark:border-slate-600 shadow-inner">
+                    <label class="block font-bold text-slate-400 dark:text-slate-300 uppercase text-[10px] tracking-wider mb-1">📚 विषय (Subjects)</label>
+                    <span id="pm-sub" class="font-bold text-slate-800 dark:text-slate-100">-</span>
                 </div>
-                <div class="bg-slate-50 p-2.5 rounded border border-slate-200">
-                    <label class="block font-bold text-slate-500 uppercase text-[10px]">🎓 योग्यता (Qualification)</label>
-                    <span id="pm-qual" class="font-bold text-slate-800 text-xs">-</span>
+                <div class="bg-slate-50 dark:bg-slate-700/60 p-3.5 rounded-xl border border-slate-200 dark:border-slate-600 shadow-inner">
+                    <label class="block font-bold text-slate-400 dark:text-slate-300 uppercase text-[10px] tracking-wider mb-1">🎓 योग्यता (Qualification)</label>
+                    <span id="pm-qual" class="font-extrabold text-govNavy dark:text-amber-300">-</span>
                 </div>
-                <div class="bg-slate-50 p-2.5 rounded border border-slate-200">
-                    <label class="block font-bold text-slate-500 uppercase text-[10px]">💼 अनुभव (Experience)</label>
-                    <span id="pm-exp" class="font-semibold text-slate-800 text-xs">-</span>
+                <div class="bg-slate-50 dark:bg-slate-700/60 p-3.5 rounded-xl border border-slate-200 dark:border-slate-600 shadow-inner">
+                    <label class="block font-bold text-slate-400 dark:text-slate-300 uppercase text-[10px] tracking-wider mb-1">💼 अनुभव (Experience)</label>
+                    <span id="pm-exp" class="font-semibold text-slate-800 dark:text-slate-100">-</span>
                 </div>
             </div>
 
-            <div class="mt-5">
-                <button onclick="openModal('parentReqModal'); closeModal('tutorProfileModal');" class="w-full bg-govNavy hover:bg-slate-900 text-white font-bold py-2.5 rounded text-xs transition border-b-2 border-govGold">
-                    शिक्षकको लागि सम्पर्क गर्नुहोस्
+            <div class="mt-6">
+                <button onclick="openModal('parentReqModal'); closeModal('tutorProfileModal');" class="w-full bg-govNavy hover:bg-slate-900 text-white font-bold py-3.5 rounded-xl text-sm transition-all border-b-4 border-govGold shadow-lg">
+                    यस शिक्षकको लागि सम्पर्क गर्नुहोस्
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- MODAL: Parent Requirement Form -->
-    <div id="parentReqModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-xl shadow-2xl max-w-lg w-full p-6 relative border-t-4 border-govRed">
-            <button onclick="closeModal('parentReqModal')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700 text-2xl font-bold">&times;</button>
-            <h3 class="text-base font-bold text-govNavy mb-3">अभिभावक ट्युटर माग फारम (Tutor Request)</h3>
-            <form onsubmit="sendParentToWhatsApp(event)" class="space-y-3 text-xs">
+    <!-- Parent Requirement Form -->
+    <div id="parentReqModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-lg w-full p-8 relative border-t-8 border-govRed animate-slide-up text-slate-800 dark:text-slate-200">
+            <button onclick="closeModal('parentReqModal')" class="absolute top-4 right-4 text-slate-400 hover:text-govRed text-3xl font-bold transition-colors">&times;</button>
+            <h3 class="text-xl font-extrabold text-govNavy dark:text-blue-300 mb-4 flex items-center gap-2"><span class="text-2xl">📝</span> अभिभावक माग फारम</h3>
+            <form onsubmit="sendParentToWhatsApp(event)" class="space-y-4 text-sm">
                 <div>
-                    <label class="block font-bold text-slate-700 mb-1">अभिभावक / विद्यार्थीको नाम *</label>
-                    <input type="text" id="parentName" required class="w-full p-2.5 bg-slate-50 border rounded" placeholder="उदा: Ram Poudel">
+                    <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1.5">अभिभावक / विद्यार्थीको नाम *</label>
+                    <input type="text" id="parentName" required class="w-full p-3 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-govRed outline-none transition-all shadow-inner dark:text-white" placeholder="उदा: Ram Poudel">
                 </div>
                 <div>
-                    <label class="block font-bold text-slate-700 mb-1">सम्पर्क फोन नम्बर *</label>
-                    <input type="tel" id="parentPhone" required class="w-full p-2.5 bg-slate-50 border rounded" placeholder="९८XXXXXXXX">
+                    <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1.5">सम्पर्क फोन नम्बर *</label>
+                    <input type="tel" id="parentPhone" required class="w-full p-3 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-govRed outline-none transition-all shadow-inner dark:text-white" placeholder="९८XXXXXXXX">
                 </div>
-                <div class="grid grid-cols-2 gap-2">
+                <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block font-bold text-slate-700 mb-1">कक्षा (Class) *</label>
-                        <input type="text" id="parentClass" required class="w-full p-2.5 bg-slate-50 border rounded" placeholder="उदा: Class 10">
+                        <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1.5">कक्षा (Class) *</label>
+                        <input type="text" id="parentClass" required class="w-full p-3 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-govRed outline-none transition-all shadow-inner dark:text-white" placeholder="उदा: Class 10">
                     </div>
                     <div>
-                        <label class="block font-bold text-slate-700 mb-1">विषय (Subject) *</label>
-                        <input type="text" id="parentSubject" required class="w-full p-2.5 bg-slate-50 border rounded" placeholder="उदा: Math & Science">
+                        <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1.5">विषय (Subject) *</label>
+                        <input type="text" id="parentSubject" required class="w-full p-3 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-govRed outline-none transition-all shadow-inner dark:text-white" placeholder="उदा: Math & Science">
                     </div>
                 </div>
                 <div>
-                    <label class="block font-bold text-slate-700 mb-1">स्थान / ठेगाना (Location) *</label>
-                    <input type="text" id="parentAddress" required class="w-full p-2.5 bg-slate-50 border rounded" placeholder="उदा: Amarsingh Chowk">
+                    <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1.5">स्थान / ठेगाना (Location) *</label>
+                    <input type="text" id="parentAddress" required class="w-full p-3 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-govRed outline-none transition-all shadow-inner dark:text-white" placeholder="उदा: Amarsingh Chowk">
                 </div>
-                <button type="submit" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold py-2.5 rounded shadow transition text-xs">
-                    💬 WhatsApp मार्फत अनुरोध पठाउनुहोस्
+                <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl shadow-lg transition-all text-sm mt-2 flex items-center justify-center gap-2">
+                    <span class="text-xl">💬</span> WhatsApp मार्फत अनुरोध पठाउनुहोस्
                 </button>
             </form>
         </div>
     </div>
 
     <!-- Footer -->
-    <footer class="bg-govNavy text-slate-300 text-xs py-8 border-t-4 border-govGold mt-12">
-        <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-8 mb-6">
+    <footer class="bg-slate-900 text-slate-300 text-sm py-10 border-t-4 border-govGold mt-auto relative z-20">
+        <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-10 mb-8">
             <div>
-                <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiL7dDqEm-oYV5DXpfPm4YM9kpU1IB3uRoxQn6itok7vJskTq8Uts_flkvKk-QRxXK1R7k8fJ3s5pRHCmLbSnlA2uiocm_uwmGOmlPwI90_NOIWnclF8_JW-r3AWE2u36-ExBJSK6L82fZoB_75xwgzzTKwhX4Zza7T_M20GkGI38Y4vLc6Yi1EDMu6FDso/s1254/1000275071.png" alt="Logo" class="h-10 w-auto mb-2 bg-white p-1 rounded">
-                <p class="text-slate-300">शिक्षा साथी पोखरामा कक्षा १ देखि १२ सम्मका विद्यार्थीहरूलाई होम ट्युसन सहजीकरण गराउने निजी प्लेटफर्म हो।</p>
+                <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiL7dDqEm-oYV5DXpfPm4YM9kpU1IB3uRoxQn6itok7vJskTq8Uts_flkvKk-QRxXK1R7k8fJ3s5pRHCmLbSnlA2uiocm_uwmGOmlPwI90_NOIWnclF8_JW-r3AWE2u36-ExBJSK6L82fZoB_75xwgzzTKwhX4Zza7T_M20GkGI38Y4vLc6Yi1EDMu6FDso/s1254/1000275071.png" alt="Logo" class="h-12 w-auto mb-4 bg-white p-1.5 rounded-lg shadow-sm">
+                <p class="text-slate-400 leading-relaxed text-xs">शिक्षा साथी पोखरामा कक्षा १ देखि १२ सम्मका विद्यार्थीहरूलाई होम ट्युसन सहजीकरण गराउने निजी प्लेटफर्म हो।</p>
             </div>
             <div>
-                <h4 class="text-govGold font-bold mb-2">भुक्तानी साझेदार</h4>
-                <div class="flex gap-2 font-bold">
-                    <span class="bg-emerald-800 text-white px-2 py-0.5 rounded">eSewa</span>
-                    <span class="bg-purple-800 text-white px-2 py-0.5 rounded">Khalti</span>
-                    <span class="bg-red-800 text-white px-2 py-0.5 rounded">Fonepay</span>
+                <h4 class="text-govGold font-bold mb-3 uppercase tracking-wider text-xs">भुक्तानी साझेदार</h4>
+                <div class="flex gap-3 font-bold text-xs">
+                    <span class="bg-emerald-800/80 text-white px-3 py-1 rounded shadow-sm border border-emerald-600">eSewa</span>
+                    <span class="bg-purple-800/80 text-white px-3 py-1 rounded shadow-sm border border-purple-600">Khalti</span>
+                    <span class="bg-red-800/80 text-white px-3 py-1 rounded shadow-sm border border-red-600">Fonepay</span>
                 </div>
             </div>
             <div>
-                <h4 class="text-govGold font-bold mb-2">सम्पर्क ठेगाना</h4>
-                <p>📍 स्थान: गण्डकी प्रदेश, पोखरा, नेपाल</p>
-                <p>📞 फोन: ९७६८००६६६७</p>
-                <p>✉️ इमेल: Sikshashathi@gmail.com</p>
+                <h4 class="text-govGold font-bold mb-3 uppercase tracking-wider text-xs">सम्पर्क ठेगाना</h4>
+                <div class="space-y-2 text-xs">
+                    <p class="flex items-center gap-2"><span class="text-lg">📍</span> गण्डकी प्रदेश, पोखरा, नेपाल</p>
+                    <p class="flex items-center gap-2"><span class="text-lg">📞</span> ९७६८००६६६७</p>
+                    <p class="flex items-center gap-2"><span class="text-lg">✉️</span> tuitionhomepokhara@gmail.com</p>
+                </div>
             </div>
         </div>
-        <div class="max-w-7xl mx-auto px-6 border-t border-slate-700 pt-4 text-center text-slate-400">
+        <div class="max-w-7xl mx-auto px-6 border-t border-slate-700/50 pt-5 text-center text-slate-500 text-xs">
             <p>&copy; 2026 Shikshya Sathi Home Tuition Pokhara. All rights reserved.</p>
         </div>
     </footer>
@@ -483,131 +514,119 @@
     <script>
         const API = 'https://script.google.com/macros/s/AKfycbwYDPtDbQtin4t-Soa7SUI6wT1QMfql4Wd0thFlaFlnGbPsW-3TIf3gq8dVSq1eHq4j/exec';
         const WHATSAPP_NUMBER = "9779768006667";
-
         let tutors = [];
+
+        // Dynamic Live Date Script (English + Simple Nepali Conversion Format)
+        function updateLiveDate() {
+            const now = new Date();
+            const options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' };
+            const engDate = now.toLocaleDateString('en-US', options);
+            
+            // Display English Date
+            const dateElem = document.getElementById('live-date-display');
+            if (dateElem) {
+                dateElem.innerText = engDate;
+            }
+        }
+
+        // Dark / Light Mode Toggle Function
+        function toggleDarkMode() {
+            const html = document.documentElement;
+            const themeIcon = document.getElementById('theme-icon');
+            const themeText = document.getElementById('theme-text');
+            
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                themeIcon.innerText = '🌙';
+                themeText.innerText = 'Dark';
+                localStorage.setItem('theme', 'light');
+            } else {
+                html.classList.add('dark');
+                themeIcon.innerText = '☀️';
+                themeText.innerText = 'Light';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        // Load saved theme preference
+        if (localStorage.getItem('theme') === 'dark') {
+            document.documentElement.classList.add('dark');
+            setTimeout(() => {
+                const themeIcon = document.getElementById('theme-icon');
+                const themeText = document.getElementById('theme-text');
+                if (themeIcon) themeIcon.innerText = '☀️';
+                if (themeText) themeText.innerText = 'Light';
+            }, 100);
+        }
+
+        // SPA Navigation Function (Switching Views)
+        function switchView(viewName) {
+            document.querySelectorAll('.view-section').forEach(el => {
+                el.classList.remove('active');
+            });
+            
+            const target = document.getElementById(viewName + '-view');
+            if(target) target.classList.add('active');
+
+            document.querySelectorAll('.nav-item').forEach(el => {
+                el.classList.remove('bg-blue-900', 'border-b-2', 'border-govGold', 'shadow-inner');
+                el.classList.add('hover:bg-blue-800', 'text-slate-200');
+            });
+
+            let activeNavId = 'nav-home';
+            if(viewName === 'vacancy') activeNavId = 'nav-reg';
+            if(viewName === 'tutor-reg') activeNavId = 'nav-tutor-apply';
+            if(viewName === 'result') activeNavId = 'nav-result';
+            
+            const activeNav = document.getElementById(activeNavId);
+            if(activeNav) {
+                activeNav.classList.remove('hover:bg-blue-800', 'text-slate-200');
+                activeNav.classList.add('bg-blue-900', 'border-b-2', 'border-govGold', 'shadow-inner', 'text-white');
+            }
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
 
         function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
         function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
-
-        // Result Search System Function
-        function handleResultSearch(e) {
-            e.preventDefault();
-            const symbol = document.getElementById('resultSymbol').value.trim();
-            const selectedClass = document.getElementById('resultClass').value;
-            const msgBox = document.getElementById('resultMessage');
-            const cardArea = document.getElementById('resultCardArea');
-
-            if (!symbol) {
-                alert('कृपया सिम्बोल नम्बर प्रविष्ट गर्नुहोस्!');
-                return;
-            }
-
-            msgBox.className = "mt-4 text-center text-xs font-bold text-govNavy animate-pulse";
-            msgBox.innerText = "⏳ सिम्बोल नम्बर खोजिँदैछ, कृपया पर्खनुहोस्...";
-            msgBox.classList.remove('hidden');
-            cardArea.classList.add('hidden');
-
-            setTimeout(() => {
-                msgBox.classList.add('hidden');
-                
-                // Demo Result Generation
-                document.getElementById('resName').innerText = "Student (" + symbol + ")";
-                document.getElementById('resSymbol').innerText = symbol;
-                document.getElementById('resClass').innerText = "Class " + selectedClass;
-
-                const sampleSubjects = [
-                    { name: 'Compulsory English', credit: '4.0', grade: 'A+', gp: '3.6' },
-                    { name: 'Compulsory Nepali', credit: '4.0', grade: 'A', gp: '3.2' },
-                    { name: 'Compulsory Mathematics', credit: '4.0', grade: 'A+', gp: '4.0' },
-                    { name: 'Compulsory Science & Tech', credit: '4.0', grade: 'A+', gp: '3.8' },
-                    { name: 'Social Studies', credit: '4.0', grade: 'B+', gp: '2.8' }
-                ];
-
-                const tbody = document.getElementById('resultTableBody');
-                tbody.innerHTML = '';
-                sampleSubjects.forEach(sub => {
-                    const tr = document.createElement('tr');
-                    tr.className = "border-b border-slate-200 text-[11px]";
-                    tr.innerHTML = `
-                        <td class="border border-slate-300 p-1.5 font-semibold text-slate-800">${sub.name}</td>
-                        <td class="border border-slate-300 p-1.5 text-center font-bold">${sub.credit}</td>
-                        <td class="border border-slate-300 p-1.5 text-center font-extrabold text-govNavy">${sub.grade}</td>
-                        <td class="border border-slate-300 p-1.5 text-center font-bold text-slate-700">${sub.gp}</td>
-                    `;
-                    tbody.appendChild(tr);
-                });
-
-                document.getElementById('resGPA').innerText = "3.55 (Very Good)";
-                cardArea.classList.remove('hidden');
-            }, 800);
-        }
 
         function switchLanguage(lang) {
             const npBtn = document.getElementById('btn-np');
             const enBtn = document.getElementById('btn-en');
             if (lang === 'en') {
-                enBtn.className = "px-2.5 py-0.5 rounded bg-govRed text-white font-semibold transition border border-amber-300";
-                npBtn.className = "px-2.5 py-0.5 rounded hover:bg-blue-900 text-slate-300 transition";
-                document.getElementById('top-loc').innerText = "Gandaki Pradesh, Pokhara, Nepal";
+                enBtn.className = "px-2.5 py-1 rounded-md bg-govRed text-white font-semibold transition-all border border-amber-300 shadow-sm text-[11px]";
+                npBtn.className = "px-2.5 py-1 rounded-md hover:bg-blue-900 text-slate-300 transition-all text-[11px]";
                 document.getElementById('header-slogan').innerText = "Your Partner for Educational Success";
-                document.getElementById('header-sub').innerText = "Private Home Tuition Service System";
                 document.getElementById('btn-tutor-reg').innerText = "+ Register as Tutor";
                 document.getElementById('btn-parent-req').innerText = "Request a Tutor";
                 document.getElementById('nav-home').innerText = "Home";
-                document.getElementById('nav-search').innerText = "Find Tutors";
-                document.getElementById('nav-reg').innerText = "Tutor Registration";
-                document.getElementById('nav-library').innerText = "Library";
+                document.getElementById('nav-reg').innerText = "Vacancy";
+                document.getElementById('nav-tutor-apply').innerText = "Tutor Apply";
                 document.getElementById('nav-about').innerText = "About Us";
                 document.getElementById('nav-result').innerText = "📊 Result";
-                document.getElementById('hero-title').innerHTML = "Personalized Excellence from <span class='text-amber-400'>Certified Tutors</span>";
-                document.getElementById('tutors-sec-title').innerText = "Available Tutor Profiles (Live)";
                 
-                // About Modal English Translation
-                document.getElementById('about-modal-title').innerText = "About Shikshya Sathi";
-                document.getElementById('about-modal-content').innerHTML = `
-                    <div class="bg-blue-50 p-4 rounded-lg border-l-4 border-govNavy">
-                        <h3 class="font-extrabold text-govNavy text-base mb-1">🎓 What is Shikshya Sathi?</h3>
-                        <p>
-                            <strong>Shikshya Sathi</strong> is a trusted and leading <strong>Home Tuition Management Platform</strong> operating in the Pokhara region. Our core mission is to connect students directly with qualified, experienced, and dedicated home tutors right at their doorstep.
-                        </p>
-                    </div>
-                    <div>
-                        <h3 class="font-bold text-govNavy text-sm mb-1 uppercase tracking-wide">🎯 Our Mission</h3>
-                        <p>
-                            Every student learns differently. In crowded classrooms, many students lack personal attention. Therefore, we aim to bridge this gap for students from Grade 1 to 12 (including SEE & +2) by providing verified tutors tailored to their individual needs.
-                        </p>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        <div class="bg-slate-50 p-3 rounded border border-slate-200">
-                            <h4 class="font-bold text-govRed text-xs mb-1">✅ Verified Tutors</h4>
-                            <p class="text-xs text-slate-600">Our tutors hold strong academic qualifications (+2 pass, Bachelor/Master running or completed) with teaching experience.</p>
-                        </div>
-                        <div class="bg-slate-50 p-3 rounded border border-slate-200">
-                            <h4 class="font-bold text-govRed text-xs mb-1">📍 Coverage Across Pokhara</h4>
-                            <p class="text-xs text-slate-600">Home tuition service available in Birauta, Newroad, Lakeside, Amarsingh, Bagar, and nearby locations.</p>
-                        </div>
-                    </div>
-                    <div class="bg-amber-50 p-3 rounded border border-amber-300 text-center space-y-1">
-                        <p class="font-bold text-govNavy text-xs">📞 Contact Us</p>
-                        <p class="text-sm font-extrabold text-govRed">Phone: 9768006667 | Email: Sikshashathi@gmail.com</p>
-                    </div>
-                `;
+                document.getElementById('hero-title').innerHTML = "Personalized Excellence from <br class='hidden sm:block'/> <span class='text-transparent bg-clip-text bg-gradient-to-r from-govGold to-yellow-200'>Certified Tutors</span>";
+                document.getElementById('tutors-sec-title').innerText = "Available Tutor Profiles";
+                document.getElementById('title-vacancy').innerText = "Teacher Vacancy";
+                document.getElementById('title-reg').innerText = "Tutor Registration Form";
+                document.getElementById('title-result').innerText = "Result Portal";
             } else {
-                npBtn.className = "px-2.5 py-0.5 rounded bg-govRed text-white font-semibold transition border border-amber-300";
-                enBtn.className = "px-2.5 py-0.5 rounded hover:bg-blue-900 text-slate-300 transition";
-                document.getElementById('top-loc').innerText = "गण्डकी प्रदेश, पोखरा, नेपाल";
+                npBtn.className = "px-2.5 py-1 rounded-md bg-govRed text-white font-semibold transition-all border border-amber-300 shadow-sm text-[11px]";
+                enBtn.className = "px-2.5 py-1 rounded-md hover:bg-blue-900 text-slate-300 transition-all text-[11px]";
                 document.getElementById('header-slogan').innerText = "साथ हाम्रो, सफलता तपाईंको";
-                document.getElementById('header-sub').innerText = "निजी होम ट्युसन व्यवस्थापन प्रणाली, पोखरा";
                 document.getElementById('btn-tutor-reg').innerText = "+ शिक्षक दर्ता";
                 document.getElementById('btn-parent-req').innerText = "ट्युटर माग गर्नुहोस्";
                 document.getElementById('nav-home').innerText = "गृहपृष्ठ";
-                document.getElementById('nav-search').innerText = "ट्युटर खोजी";
-                document.getElementById('nav-reg').innerText = "शिक्षक आवेदन";
-                document.getElementById('nav-library').innerText = "लाइब्रेरी";
+                document.getElementById('nav-reg').innerText = "भ्याकेन्सी";
+                document.getElementById('nav-tutor-apply').innerText = "शिक्षक आवेदन";
                 document.getElementById('nav-about').innerText = "हाम्रो बारेमा";
                 document.getElementById('nav-result').innerText = "📊 नतिजा";
-                document.getElementById('hero-title').innerHTML = "प्रमाणित शिक्षकबाट <span class='text-amber-400'>गुणस्तरीय होम ट्युसन</span>";
-                document.getElementById('tutors-sec-title').innerText = "उपलब्ध शिक्षक विवरणहरू (Tutor Profiles)";
+                
+                document.getElementById('hero-title').innerHTML = "प्रमाणित शिक्षकबाट <br class='hidden sm:block'/> <span class='text-transparent bg-clip-text bg-gradient-to-r from-govGold to-yellow-200'>गुणस्तरीय होम ट्युसन</span>";
+                document.getElementById('tutors-sec-title').innerText = "उपलब्ध शिक्षक विवरणहरू";
+                document.getElementById('title-vacancy').innerText = "शिक्षक भ्याकेन्सी (Teacher Vacancy)";
+                document.getElementById('title-reg').innerText = "शिक्षक दर्ता (Tutor Registration)";
+                document.getElementById('title-result').innerText = "नतिजा खोजी पोर्टल (Result Portal)";
             }
         }
 
@@ -615,53 +634,36 @@
             if (!rowObj) return '';
             for (let key in rowObj) {
                 let cleanKey = key.trim().toLowerCase();
-                for (let p of possibleKeys) {
-                    if (cleanKey === p.toLowerCase()) return rowObj[key];
-                }
+                for (let p of possibleKeys) { if (cleanKey === p.toLowerCase()) return rowObj[key]; }
             }
             return '';
         }
-
         function sanitizeQualification(val) {
-            if (!val) return '+2 Pass';
             let str = String(val).trim();
-            if (str === '#ERROR!' || str === 'ERROR' || str === '' || str === 'undefined' || str === 'null') {
-                return '+2 Pass';
-            }
+            if (!val || str === '#ERROR!' || str === 'ERROR' || str === '' || str === 'undefined' || str === 'null') return '+2 Pass';
             return str;
         }
 
         async function init() {
+            updateLiveDate();
             const statusDiv = document.getElementById('loading-status');
             try {
                 const res = await fetch(API);
-                if (!res.ok) throw new Error("HTTP error " + res.status);
-                
+                if (!res.ok) throw new Error("HTTP error");
                 const data = await res.json();
                 const rows = Array.isArray(data) ? data : (data.data || []);
-
-                if (rows.length === 0) {
-                    statusDiv.innerText = "⚠️ तथ्याङ्क (Tutor Profiles) फेला परेन।";
-                    return;
-                }
-
-                tutors = rows.map((r, index) => {
-                    let rawQual = getVal(r, ['QUALIFICATION', 'Qualification', 'qualification']);
-                    return {
-                        rowIndex: r.rowIndex || (index + 2),
-                        name: String(getVal(r, ['FULL NAME', 'Full Name', 'NAME', 'Name', 'name', 'FullName'])).trim(),
-                        location: String(getVal(r, ['LOCATION', 'Address', 'Location', 'address', 'Current Address'])).trim(),
-                        qualification: sanitizeQualification(rawQual),
-                        subject: String(getVal(r, ['SUBJECT', 'Subject', 'subjects', 'Subjects'])).trim(),
-                        experience: String(getVal(r, ['EXPERIENCE', 'Experience', 'experience'])).trim() || 'N/A',
-                        vacancyName: String(getVal(r, ['Vacancy', 'VACANCY', 'Vacancy Name', 'Status'])).trim() || 'Available'
-                    };
-                });
-
+                if (rows.length === 0) { statusDiv.innerText = "⚠️ तथ्याङ्क (Tutor Profiles) फेला परेन।"; return; }
+                tutors = rows.map((r, index) => ({
+                    rowIndex: r.rowIndex || (index + 2),
+                    name: String(getVal(r, ['FULL NAME', 'Full Name', 'NAME', 'Name'])).trim(),
+                    location: String(getVal(r, ['LOCATION', 'Address', 'Location', 'Current Address'])).trim(),
+                    qualification: sanitizeQualification(getVal(r, ['QUALIFICATION', 'Qualification'])),
+                    subject: String(getVal(r, ['SUBJECT', 'Subject'])).trim(),
+                    experience: String(getVal(r, ['EXPERIENCE', 'Experience'])).trim() || 'N/A'
+                }));
                 statusDiv.style.display = 'none';
                 renderTutors(tutors);
             } catch (err) {
-                console.error(err);
                 statusDiv.innerText = '❌ डेटा लोड हुन सकेन। पुनः प्रयास गर्नुहोस्।';
             }
         }
@@ -674,30 +676,30 @@
 
             list.forEach(t => {
                 const card = document.createElement('div');
-                card.className = "bg-white p-4 rounded-xl border-2 border-slate-200 shadow-sm hover:shadow-lg transition cursor-pointer flex flex-col justify-between hover:border-govNavy";
+                card.className = "bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer flex flex-col justify-between hover:border-govNavy dark:hover:border-amber-400 group hover:-translate-y-1";
                 card.onclick = () => openTutorProfile(t);
 
                 card.innerHTML = `
                     <div>
-                        <div class="flex items-center space-x-3 mb-3 border-b pb-2">
-                            <div class="avatar-circle">
+                        <div class="flex items-center space-x-4 mb-4 border-b border-slate-100 dark:border-slate-700 pb-3">
+                            <div class="avatar-circle group-hover:scale-110 transition-transform">
                                 ${t.name ? t.name.charAt(0).toUpperCase() : 'T'}
                             </div>
                             <div>
-                                <h4 class="font-extrabold text-govNavy text-base">${t.name || 'Tutor Profile'}</h4>
-                                <span class="inline-flex items-center gap-1 text-[10px] font-bold text-govRed bg-red-50 px-2 py-0.5 rounded border border-red-200">
+                                <h4 class="font-extrabold text-govNavy dark:text-blue-300 text-base group-hover:text-govRed transition-colors">${t.name || 'Tutor Profile'}</h4>
+                                <span class="inline-flex items-center gap-1 text-[10px] font-bold text-govRed dark:text-red-400 bg-red-50 dark:bg-slate-700 px-2.5 py-0.5 rounded-full border border-red-100 dark:border-slate-600 mt-1 shadow-sm">
                                     📍 ${t.location || 'Pokhara'}
                                 </span>
                             </div>
                         </div>
-                        <div class="space-y-1.5 text-xs text-slate-700 bg-slate-50 p-3 rounded border border-slate-200 mb-3 font-semibold">
-                            <p><strong>📚 विषय:</strong> ${t.subject || 'General'}</p>
-                            <p><strong>🎓 योग्यता:</strong> <span class="text-govNavy font-extrabold">${t.qualification}</span></p>
-                            <p><strong>💼 अनुभव:</strong> ${t.experience}</p>
+                        <div class="space-y-2 text-xs text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-700/50 p-3.5 rounded-xl border border-slate-100 dark:border-slate-600 mb-4 font-medium transition-colors">
+                            <p class="flex items-center gap-2"><strong class="text-slate-400 dark:text-slate-400">📚 विषय:</strong> ${t.subject || 'General'}</p>
+                            <p class="flex items-center gap-2"><strong class="text-slate-400 dark:text-slate-400">🎓 योग्यता:</strong> <span class="text-govNavy dark:text-amber-300 font-extrabold">${t.qualification}</span></p>
+                            <p class="flex items-center gap-2"><strong class="text-slate-400 dark:text-slate-400">💼 अनुभव:</strong> ${t.experience}</p>
                         </div>
                     </div>
-                    <button class="w-full bg-govNavy hover:bg-slate-900 text-white text-xs font-bold py-2 rounded transition border-b-2 border-govGold">
-                        विवरण हेर्नुहोस् (View Profile)
+                    <button class="w-full bg-slate-100 dark:bg-slate-700 group-hover:bg-govNavy dark:group-hover:bg-govGold text-govNavy dark:text-slate-100 group-hover:text-white dark:group-hover:text-slate-900 text-xs font-bold py-2.5 rounded-lg transition-colors border border-slate-200 dark:border-slate-600 shadow-sm">
+                        विस्तृत विवरण हेर्नुहोस्
                     </button>
                 `;
                 grid.appendChild(card);
@@ -708,15 +710,7 @@
             const sName = document.getElementById('s-name').value.toLowerCase();
             const sLoc = document.getElementById('s-location').value.toLowerCase();
             const sSub = document.getElementById('s-subject').value.toLowerCase();
-
-            const filtered = tutors.filter(t => {
-                const matchesName = t.name.toLowerCase().includes(sName);
-                const matchesInputLoc = t.location.toLowerCase().includes(sLoc);
-                const matchesSub = t.subject.toLowerCase().includes(sSub);
-
-                return matchesName && matchesInputLoc && matchesSub;
-            });
-
+            const filtered = tutors.filter(t => t.name.toLowerCase().includes(sName) && t.location.toLowerCase().includes(sLoc) && t.subject.toLowerCase().includes(sSub));
             renderTutors(filtered);
         }
 
@@ -727,7 +721,6 @@
             document.getElementById('pm-sub').innerText = t.subject || '-';
             document.getElementById('pm-qual').innerText = t.qualification;
             document.getElementById('pm-exp').innerText = t.experience || '-';
-
             openModal('tutorProfileModal');
         }
 
@@ -735,12 +728,11 @@
             e.preventDefault();
             const name = document.getElementById('parentName').value;
             const phone = document.getElementById('parentPhone').value;
-            const targetClass = document.getElementById('parentClass').value;
-            const subject = document.getElementById('parentSubject').value;
-            const address = document.getElementById('parentAddress').value;
-
-            const message = `🏠 *Parent Tutor Request*\n\n👤 *Parent Name:* ${name}\n📞 *Phone:* ${phone}\n🎓 *Class:* ${targetClass}\n📚 *Subject:* ${subject}\n📍 *Address:* ${address}`;
-            window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, '_blank');
+            const tClass = document.getElementById('parentClass').value;
+            const sub = document.getElementById('parentSubject').value;
+            const add = document.getElementById('parentAddress').value;
+            const msg = `🏠 *Parent Tutor Request*\n\n👤 *Name:* ${name}\n📞 *Phone:* ${phone}\n🎓 *Class:* ${tClass}\n📚 *Subject:* ${sub}\n📍 *Address:* ${add}`;
+            window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank');
             closeModal('parentReqModal');
         }
 
